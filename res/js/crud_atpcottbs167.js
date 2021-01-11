@@ -46,245 +46,25 @@ HTMLElement.prototype._csstext = function (key, value) {
     }
 };
 
-const __tbl_url = '';
+const __tbl_url = 'http://localhost:9082/demo1672/v1/atpcottbs167';
 const __tbl_search = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VERCHAR2';
-const __tbl_display = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;EFFECTIVE_DATE,VARCHAR2;EXPIRY_DATE,VARCHAR2';
+const __tbl_display = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;EFFECTIVE_DATE,VARCHAR2;EXPIRY_DATE,VARCHAR2;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
 const __tbl_edit = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;MD5,VARCHAR2';
 const __tbl_primary = 'MD5,VARCHAR2;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
 
 const _table_data = {
     details: [
-        {
-            "rec_type": "3",
-            "action": "2",
-            "tbl_id": "167",
-            "tbl_no": "00010750",
-            "ticket_code": null,
-            "appl": "Y",
-            "fbtd": "-/ID00N*",
-            "eqp": null,
-            "cabin": null,
-            "rbd": null,
-            "fare_type": null,
-            "tariff": null,
-            "fare_owning_carrier": null,
-            "rule": "STDN",
-            "rest": null,
-            "md5": "8c5bdc0b5a4090a0f238397b11ec9db8",
-            "header_id": "TAX.1908231200.txt",
-            "effective_date": "2019-08-23",
-            "lineno": "2988",
-            "expiry_date": "4000-12-31"
-        },
-        {
-            "rec_type": "3",
-            "action": "2",
-            "tbl_id": "167",
-            "tbl_no": "00010750",
-            "ticket_code": null,
-            "appl": "Y",
-            "fbtd": "-/ID00R*",
-            "eqp": null,
-            "cabin": null,
-            "rbd": null,
-            "fare_type": null,
-            "tariff": null,
-            "fare_owning_carrier": null,
-            "rule": "MATD",
-            "rest": null,
-            "md5": "1b73083c9c99728a940045050479b483",
-            "header_id": "TAX.1908231200.txt",
-            "effective_date": "2019-08-23",
-            "lineno": "2996",
-            "expiry_date": "4000-12-31"
-        },
-        {
-            "rec_type": "3",
-            "action": "2",
-            "tbl_id": "167",
-            "tbl_no": "00010750",
-            "ticket_code": null,
-            "appl": "Y",
-            "fbtd": "-/ID75N*",
-            "eqp": null,
-            "cabin": null,
-            "rbd": null,
-            "fare_type": null,
-            "tariff": null,
-            "fare_owning_carrier": null,
-            "rule": "MATD",
-            "rest": null,
-            "md5": "8bc3805d76e8b1978929bfa30940be41",
-            "header_id": "TAX.1908231200.txt",
-            "effective_date": "2019-08-23",
-            "lineno": "2997",
-            "expiry_date": "4000-12-31"
-        },
-        {
-            "rec_type": "3",
-            "action": "2",
-            "tbl_id": "167",
-            "tbl_no": "00010750",
-            "ticket_code": null,
-            "appl": "Y",
-            "fbtd": "-/ID75R*",
-            "eqp": null,
-            "cabin": null,
-            "rbd": null,
-            "fare_type": null,
-            "tariff": null,
-            "fare_owning_carrier": null,
-            "rule": "MATI",
-            "rest": null,
-            "md5": "686dcf281a805c39b548fe9e438e5a99",
-            "header_id": "TAX.1908231200.txt",
-            "effective_date": "2019-08-23",
-            "lineno": "3017",
-            "expiry_date": "4000-12-31"
-        },
-        {
-            "rec_type": "3",
-            "action": "2",
-            "tbl_id": "167",
-            "tbl_no": "00010750",
-            "ticket_code": null,
-            "appl": "Y",
-            "fbtd": "-/ID00N*",
-            "eqp": null,
-            "cabin": null,
-            "rbd": null,
-            "fare_type": null,
-            "tariff": null,
-            "fare_owning_carrier": null,
-            "rule": "MIOA",
-            "rest": null,
-            "md5": "6b6cd826a2dfaaf0dc0383b16673804f",
-            "header_id": "TAX.1908231200.txt",
-            "effective_date": "2019-08-23",
-            "lineno": "3048",
-            "expiry_date": "4000-12-31"
-        },
-        {
-            "rec_type": "3",
-            "action": "2",
-            "tbl_id": "167",
-            "tbl_no": "00010750",
-            "ticket_code": null,
-            "appl": "Y",
-            "fbtd": "-/ID90R*",
-            "eqp": null,
-            "cabin": null,
-            "rbd": null,
-            "fare_type": null,
-            "tariff": null,
-            "fare_owning_carrier": null,
-            "rule": "MAA5",
-            "rest": null,
-            "md5": "1a055f8536b8f2b7d5feac42e233d74b",
-            "header_id": "TAX.1908231200.txt",
-            "effective_date": "2019-08-23",
-            "lineno": "3055",
-            "expiry_date": "4000-12-31"
-        },
-        {
-            "rec_type": "3",
-            "action": "2",
-            "tbl_id": "167",
-            "tbl_no": "00011278",
-            "ticket_code": null,
-            "appl": "Y",
-            "fbtd": "-/WS05",
-            "eqp": null,
-            "cabin": null,
-            "rbd": null,
-            "fare_type": null,
-            "tariff": "191",
-            "fare_owning_carrier": null,
-            "rule": "JPS5",
-            "rest": null,
-            "md5": "a1a3763e8798dbef55452d0818659b1b",
-            "header_id": "TAX.2001031500.txt",
-            "effective_date": "2020-01-03",
-            "lineno": "87",
-            "expiry_date": "4000-12-31"
-        },
-        {
-            "rec_type": "3",
-            "action": "2",
-            "tbl_id": "167",
-            "tbl_no": "00011279",
-            "ticket_code": null,
-            "appl": "Y",
-            "fbtd": "-/WS05",
-            "eqp": null,
-            "cabin": null,
-            "rbd": null,
-            "fare_type": null,
-            "tariff": "864",
-            "fare_owning_carrier": null,
-            "rule": "JPST",
-            "rest": null,
-            "md5": "d663a9854202507e2c2cc205c24578bb",
-            "header_id": "TAX.2001031500.txt",
-            "effective_date": "2020-01-03",
-            "lineno": "117",
-            "expiry_date": "4000-12-31"
-        },
-        {
-            "rec_type": "3",
-            "action": "2",
-            "tbl_id": "167",
-            "tbl_no": "00011279",
-            "ticket_code": null,
-            "appl": "Y",
-            "fbtd": "-/WS05",
-            "eqp": null,
-            "cabin": null,
-            "rbd": null,
-            "fare_type": null,
-            "tariff": "191",
-            "fare_owning_carrier": null,
-            "rule": "JPS5",
-            "rest": null,
-            "md5": "8fbdf8680bda2412d4037b25fa45bb53",
-            "header_id": "TAX.2001031500.txt",
-            "effective_date": "2020-01-03",
-            "lineno": "123",
-            "expiry_date": "4000-12-31"
-        },
-        {
-            "rec_type": "3",
-            "action": "2",
-            "tbl_id": "167",
-            "tbl_no": "00011279",
-            "ticket_code": null,
-            "appl": "Y",
-            "fbtd": "-/WS01",
-            "eqp": null,
-            "cabin": null,
-            "rbd": null,
-            "fare_type": null,
-            "tariff": "864",
-            "fare_owning_carrier": null,
-            "rule": "JPST",
-            "rest": null,
-            "md5": "51cecd258dde597381fd2842b6ddc014",
-            "header_id": "TAX.2001031500.txt",
-            "effective_date": "2020-01-03",
-            "lineno": "113",
-            "expiry_date": "4000-12-31"
-        }
     ],
     total: 7,
     current: 1
 };
 
 const _init_search_form = function() {
-    let pattern = '<div class="ui mini labeled input"><div class="ui label">@0</div><input type="text" data-name="@1"></div>';
+    let pattern = '<div class="ui mini labeled input"><div class="ui label">@0</div><input type="text" id="tbl_search_@0"></div>';
     let fs = [];
     __tbl_search.split(';').forEach(function(item){
         let nt = item.split(',');
-        fs.push(pattern.replaceAll('@0', nt[0]).replaceAll('@1', nt[1]));
+        fs.push(pattern.replaceAll('@0', nt[0]));
     });
     _('#search_form')._h(fs.join(''));
 };
@@ -293,18 +73,59 @@ let _current_page = 1;
 let _current_pagesize = 10;
 let _query_condition = '';
 
+const _build_where = function() {
+    let cs = [];
+    __tbl_search.split(';').forEach(function(item) {
+        let nt = item.split(',');
+        let value = _(`#tbl_search_${nt[0]}`).value.trim();
+        if (value.length > 0) {
+            if (nt[1].indexOf('CHAR') >= 0) {
+                cs.push(`${nt[0]}='${value}'`);
+            } else {
+                cs.push(`${nt[0]}=${value}`);
+            }
+        }
+    });
+    return encodeURIComponent(cs.join(' and '));
+};
+
+const _build_fields = function() {
+    let cols = __tbl_display.split(';');
+    let pks = __tbl_primary.split(';');
+    let fs = [];
+    cols.forEach(function(item){
+        fs.push(item.split(',')[0]);
+    });
+    pks.forEach(function(item){
+        if (!cols.includes(item)) {
+            fs.push(item.split(',')[0]);
+        }
+    });
+    return fs.join(',').toLowerCase();
+};
+
 const _load_data = function() {
-    // TODO load real data
-    if (_table_data.total > 0) {
-        _table_data.pages = (_table_data.total / _current_pagesize) + ((_table_data.total % _current_pagesize) == 0 ? 0 : 1);
-        _current_page = _table_data.current;
-    } else {
-        _table_data.pages = 0;
-        _current_page = 0;
-    }
-    _init_table_head();
-    _init_table_body();
-    _init_table_foot();
+    _('#table_loader')._ac('active');
+    let where = _build_where();
+    let fields = _build_fields();
+    let url = `${__tbl_url}/${_current_pagesize}/${_current_page}?where=${where}&fields=${fields}`;
+    console.log(url);
+    fetch(url).then(function(resp){
+        return resp.json();
+    }).then(function(jsondata){
+        Object.assign(_table_data, jsondata);
+        if (_table_data.total > 0) {
+            _table_data.pages = (_table_data.total / _current_pagesize) + ((_table_data.total % _current_pagesize) == 0 ? 0 : 1);
+            _current_page = _table_data.current;
+        } else {
+            _table_data.pages = 0;
+            _current_page = 0;
+        }
+        _init_table_head();
+        _init_table_body();
+        _init_table_foot();
+        _('#table_loader')._rc('active');
+    });
 };
 
 const _init_table_head = function() {
@@ -328,7 +149,11 @@ const _init_table_body = function() {
         let tds = [];
         __tbl_display.split(';').forEach(function(item){
             let nt = item.split(',');
-            tds.push(`<td>${row[nt[0].toLowerCase()]}</td>`);
+            let txt = row[nt[0].toLowerCase()];
+            if (txt == null) {
+                txt = '';
+            }
+            tds.push(`<td>${txt}</td>`);
         });
         let pks = [];
         __tbl_primary.split(';').forEach(function(item){
@@ -342,6 +167,13 @@ const _init_table_body = function() {
 };
 
 const _init_table_foot = function() {
+    _('#table_total_records')._h(_table_data.total);
+    let mod = _table_data.total % _current_pagesize;
+    let pc =  parseInt(_table_data.total / _current_pagesize);
+    if (mod > 0) {
+        pc += 1
+    }
+    _('#table_total_pages')._h(`${_table_data.current}/${pc}`);
     _('#table_foot_lastcolumn')._attr('colspan', __tbl_display.split(';').length);
     _init_pagination_menu();
 };
@@ -400,11 +232,17 @@ const _pagination_handler = function(e) {
     }
     let reqpath = `/${_current_pagesize}/${pageno}` + (_query_condition != '' ? `?${_query_condition}` : '');
     console.log(reqpath);
-    _('#table_loader')._ac('active');
+    // TODO
+};
+
+const _do_search = function() {
+    _current_page = 1;
+    _load_data();
 };
 
 document.addEventListener('DOMContentLoaded', function () {
     _init_search_form();
     _init_pagesize();
     _load_data();
+    _('#btn_tbl_query')._on('click', _do_search);
 });

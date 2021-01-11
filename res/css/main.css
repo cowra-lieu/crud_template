@@ -38,3 +38,7 @@ button {
 .tbl_search_form .ui.input {
     margin-right: .5rem;
 }
+
+tfoot .statistics {
+    margin-right: .5rem;
+}
