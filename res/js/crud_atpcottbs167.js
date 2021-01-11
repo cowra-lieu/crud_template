@@ -52,6 +52,9 @@ const __tbl_display = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;
 const __tbl_edit = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;MD5,VARCHAR2';
 const __tbl_primary = 'MD5,VARCHAR2;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
 
+
+const PAGINE_BTN_NUM = 5;
+
 const _table_data = {
     details: [
     ],
@@ -179,7 +182,7 @@ const _init_table_foot = function() {
     _('#table_total_records')._h(_table_data.total);
     _('#table_total_pages')._h(`${_table_data.current}/${_last_pageno()}`);
     _('#table_foot_lastcolumn')._attr('colspan', __tbl_display.split(';').length);
-    if (_('.ui.pagination.menu').innerHTML == '') {
+    if (_('.ui.pagination.menu').innerHTML == '' || 1 >= _current_page) {
         _init_pagination_menu();
     }
 };
@@ -196,7 +199,7 @@ const _init_pagination_menu = function() {
     let pages = [];
     let t = _table_data.total;
     let page_number = 0;
-    while (t && page_number<5) {
+    while (t && page_number< PAGINE_BTN_NUM) {
         t -= 1;
         page_number += 1
         pages.push(uipaignationmenu_item.replaceAll('#', page_number).replace('@', page_number == 1 ? ' active' : ''));
