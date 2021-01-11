@@ -31,3 +31,10 @@ button {
     height: 100%;
     position: absolute;
 }
+
+.tbl_search_form {
+    display: inline-block;
+}
+.tbl_search_form .ui.input {
+    margin-right: .5rem;
+}
