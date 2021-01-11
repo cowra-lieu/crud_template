@@ -7,3 +7,23 @@ export function _fire(elem, evt_name, bubbles=false, cancelable=true) {
     evt.initEvent(evt_name, bubbles, cancelable);
     elem.dispatchEvent(evt);
 };
+
+export function _find_ancestor(start, endtagname, endclassname) {
+    while (1) {
+        if (start === document.body) {
+            return null;
+        } else if ( (endtagname == null || start.tagName === endtagname) &&
+            (endclassname == null || start._cc(endclassname)) ) {
+            return start;
+        } else {
+            start = start.parentNode;
+        }
+    }
+};
+
+export function _remove_sibling_class(pnode, tagname, cname) {
+    pnode.querySelectorAll(tagname).forEach(function(item){
+        if (item._cc(cname))
+          item._rc(cname)
+    });
+};

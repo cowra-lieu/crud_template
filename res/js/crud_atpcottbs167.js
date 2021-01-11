@@ -1,4 +1,4 @@
-import { _, __, _s2d, _fire } from './base.js'
+import { _, __, _s2d, _fire, _find_ancestor, _remove_sibling_class } from './base.js'
 
 HTMLElement.prototype._on = function (evtname, handler) {
     this.addEventListener(evtname, handler);
@@ -166,16 +166,22 @@ const _init_table_body = function() {
     _('#table_body')._h(trs.join(''));
 };
 
-const _init_table_foot = function() {
-    _('#table_total_records')._h(_table_data.total);
+const _last_pageno = function() {
     let mod = _table_data.total % _current_pagesize;
     let pc =  parseInt(_table_data.total / _current_pagesize);
     if (mod > 0) {
         pc += 1
     }
-    _('#table_total_pages')._h(`${_table_data.current}/${pc}`);
+    return pc;
+};
+
+const _init_table_foot = function() {
+    _('#table_total_records')._h(_table_data.total);
+    _('#table_total_pages')._h(`${_table_data.current}/${_last_pageno()}`);
     _('#table_foot_lastcolumn')._attr('colspan', __tbl_display.split(';').length);
-    _init_pagination_menu();
+    if (_('.ui.pagination.menu').innerHTML == '') {
+        _init_pagination_menu();
+    }
 };
 
 const _init_pagination_menu = function() {
@@ -186,7 +192,7 @@ const _init_pagination_menu = function() {
         #
         <a class="icon item" id="pagine_next"><i class="angle right icon"></i></a>
         <a class="icon item" id="pagine_last"><i class="angle double right icon"></i></a>`;
-    let uipaignationmenu_item = `<a class="item@" id="pagine_#">#</a>`;
+    let uipaignationmenu_item = `<a class="number item@" id="pagine_#">#</a>`;
     let pages = [];
     let t = _table_data.total;
     let page_number = 0;
@@ -204,35 +210,72 @@ const _init_pagesize = function() {
     pagesize.dropdown({
         onChange: function(val) {
             _current_pagesize = parseInt(val);
+            _current_page = 1;
+            _load_data();
         }
     });
 };
 
 const _pagination_handler = function(e) {
-    let target = e.target;
-    if (target.tagName === 'I') {
-        target = target.parentNode;
+    let target = _find_ancestor(e.target, 'A', null);
+    _remove_sibling_class(target.parentNode, 'A', 'active');
+
+    if (_table_data.total == 0) {
+        return;
     }
+
     let action = target.id.split('_')[1];
     let pageno = 1;
+    let lastno = _last_pageno();
     if (action === 'previous') {
         if (_current_page > 1) {
             pageno = _current_page - 1;
         }
     } else if (action === 'next') {
-        if (_current_page < _table_data.total) {
+        if (_current_page < lastno) {
             pageno = _current_page + 1;
         } else {
-            pageno = _table_data.total
+            pageno = lastno
         }
     } else if (action === 'last') {
-        pageno = _table_data.total;
-    } else {
-        pageno = action;
+        pageno = lastno;
+    } else  if (action !== 'first'){
+        pageno = parseInt(action);
     }
-    let reqpath = `/${_current_pagesize}/${pageno}` + (_query_condition != '' ? `?${_query_condition}` : '');
-    console.log(reqpath);
-    // TODO
+
+    if (target._cc('number')) {
+        target._ac('active');
+    } else {
+        let p = _(`#pagine_${pageno}`);
+        if (p) {
+            p._ac('active');
+        } else {
+            let nums = target.parentNode.querySelectorAll('a.number.item');
+            let nlen = nums.length;
+            if (nlen > 0) {
+                let min = parseInt(nums[0].innerHTML);
+                let max = parseInt(nums[nlen-1].innerHTML);
+                let start = pageno;
+                if (pageno > max) {
+                    start = pageno - (nlen - 1);
+                }
+                for (let i = 0; i<nlen; i++) {
+                    nums[i].setAttribute('id', `pagine_${start}`);
+                    nums[i].innerHTML = start;
+                    start += 1;
+                }
+                p = _(`#pagine_${pageno}`);
+                if (p) {
+                    p._ac('active');
+                }
+            }
+        }
+    }
+
+    if (pageno != _current_page) {
+        _current_page = pageno;
+        _load_data();
+    }
 };
 
 const _do_search = function() {
