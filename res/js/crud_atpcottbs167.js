@@ -1,4 +1,4 @@
-import { _, __, _s2d, _fire, _find_ancestor, _remove_sibling_class } from './base.js'
+import { _, __, _s2d, _fire, _find_ancestor, _remove_sibling_class, _remote } from './base.js'
 
 HTMLElement.prototype._on = function (evtname, handler) {
     this.addEventListener(evtname, handler);
@@ -49,7 +49,7 @@ HTMLElement.prototype._csstext = function (key, value) {
 const __tbl_url = 'http://localhost:9082/demo1672/v1/atpcottbs167';
 const __tbl_search = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VERCHAR2';
 const __tbl_display = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;EFFECTIVE_DATE,VARCHAR2;EXPIRY_DATE,VARCHAR2;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
-const __tbl_edit = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;MD5,VARCHAR2';
+const __tbl_edit = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;MD5,VARCHAR2;EFFECTIVE_DATE,VARCHAR2;EXPIRY_DATE,VARCHAR2;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
 const __tbl_primary = 'MD5,VARCHAR2;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
 
 
@@ -74,7 +74,6 @@ const _init_search_form = function() {
 
 let _current_page = 1;
 let _current_pagesize = 10;
-let _query_condition = '';
 
 const _build_where = function() {
     let cs = [];
@@ -94,14 +93,22 @@ const _build_where = function() {
 
 const _build_fields = function() {
     let cols = __tbl_display.split(';');
+    let edts = __tbl_edit.split(';');
     let pks = __tbl_primary.split(';');
     let fs = [];
     cols.forEach(function(item){
         fs.push(item.split(',')[0]);
     });
+    edts.forEach(function(item){
+        let n = item.split(',')[0];
+        if (!fs.includes(n)) {
+            fs.push(n);
+        }
+    });
     pks.forEach(function(item){
-        if (!cols.includes(item)) {
-            fs.push(item.split(',')[0]);
+        let n = item.split(',')[0];
+        if (!fs.includes(n)) {
+            fs.push(n);
         }
     });
     return fs.join(',').toLowerCase();
@@ -144,8 +151,8 @@ const _init_table_head = function() {
 const _init_table_body = function() {
     let last_td = 
     `<td class="right aligned collapsing">
-        <button class="mini ui black compact icon button" data-primary="@0" data-fields="@1"><i class="edit icon"></i></button>
-        <button class="mini ui orange compact icon button" data-primary="@0"><i class="trash icon"></i></button>
+        <button class="mini ui black compact icon button crud_edit" data-primary="@0" data-fields="@1"><i class="edit icon"></i></button>
+        <button class="mini ui orange compact icon button crud_del" data-primary="@0"><i class="trash icon"></i></button>
     </td>`;
     let trs = [];
     _table_data.details.forEach(function(row){
@@ -161,12 +168,26 @@ const _init_table_body = function() {
         let pks = [];
         __tbl_primary.split(';').forEach(function(item){
             let nt = item.split(',');
-            pks.push(`${nt[0]}=${row[nt[0].toLowerCase()]}`);
+            let v = row[nt[0].toLowerCase()];
+            if (nt[1].indexOf('CHAR') >= 0 || nt[1].indexOf('DATE') >= 0 || nt[1].indexOf('TIME') >= 0) {
+                v = `'${v}'`;
+            }
+            pks.push(`${nt[0]}=${v}`);
         });
-        tds.push(last_td.replaceAll('@1', __tbl_edit).replaceAll('@0', pks.join(',')));
+        tds.push(last_td.replaceAll('@1', __tbl_edit).replaceAll('@0', pks.join(' and ')));
         trs.push(`<tr>${tds.join('')}</tr>`);
     });
     _('#table_body')._h(trs.join(''));
+    _bind_edit_del_handlers();
+};
+
+const _bind_edit_del_handlers = function() {
+    __('#table_body button.crud_edit').forEach(function(btn){
+        btn._on('click', _open_edit_modal);
+    });
+    __('#table_body button.crud_del').forEach(function(btn){
+        btn._on('click', _confirm_delete);
+    });
 };
 
 const _last_pageno = function() {
@@ -181,7 +202,7 @@ const _last_pageno = function() {
 const _init_table_foot = function() {
     _('#table_total_records')._h(_table_data.total);
     _('#table_total_pages')._h(`${_table_data.current}/${_last_pageno()}`);
-    _('#table_foot_lastcolumn')._attr('colspan', __tbl_display.split(';').length);
+    _('#table_foot_lastcolumn')._attr('colspan', __tbl_display.split(';').length+1);
     if (_('.ui.pagination.menu').innerHTML == '' || 1 >= _current_page) {
         _init_pagination_menu();
     }
@@ -197,7 +218,7 @@ const _init_pagination_menu = function() {
         <a class="icon item" id="pagine_last"><i class="angle double right icon"></i></a>`;
     let uipaignationmenu_item = `<a class="number item@" id="pagine_#">#</a>`;
     let pages = [];
-    let t = _table_data.total;
+    let t = _last_pageno;
     let page_number = 0;
     while (t && page_number< PAGINE_BTN_NUM) {
         t -= 1;
@@ -286,9 +307,130 @@ const _do_search = function() {
     _load_data();
 };
 
+const _init_edit_form = function(init_data={}) {
+    let input_p = 
+    `<div class="field" data-init="@0" data-type="@2">
+        <label>@1</label>
+        <div class="ui mini input">
+        <input name="@1" type="text">
+        </div>
+    </div>`;
+    let fields_p = `<div class="six fields">@0</div>`;
+    let fields_list = [];
+    let tmp_list = [];
+    let edits = __tbl_edit.split(';');
+    let nt, n, t, init;
+    for(let i = 0; i<edits.length; i++) {
+        nt = edits[i].split(',');
+        n = nt[0];
+        t = nt[1];
+        init = init_data[n] == null ? '' : init_data[n];
+        tmp_list.push(input_p.replaceAll('@0', init).replaceAll('@1', n).replaceAll('@2', t));
+        if (tmp_list.length == 6) {
+            fields_list.push(fields_p.replace('@0', tmp_list.join('')));
+            tmp_list.length = 0;
+        }
+    }
+    if (tmp_list.length) {
+        fields_list.push(fields_p.replace('@0', tmp_list.join('')));
+        tmp_list.length = 0;
+    }
+    _('#frm_edit')._h(fields_list.join(''));
+};
+
+const _open_create_modal = function() {
+    $('.ui.modal.create').modal('show');
+};
+
+const _open_edit_modal = function() {
+    // TODO pre fill
+    $('.ui.modal.create').modal('show');
+};
+
+let _where_del;
+const _confirm_delete = function(e) {
+    let target = _find_ancestor(e.target, 'BUTTON', null);
+    _where_del = target.dataset['primary'];
+    $('.ui.modal.confirm_del').modal('show');
+};
+
+const _do_del = function() {
+    let data = {
+        whereclause: _where_del
+    };
+    _remote(__tbl_url, data, 'DELETE').then(function(data){
+        console.log(data);
+        if (data.status != 204) {
+            console.log('some error happen...');
+        } else {
+            _load_data();
+        }
+    }).catch(function(error){
+        console.error(error);
+    });
+};
+
+const _submit_edit = function() {
+    let data = {};
+    __('form .fields .field').forEach(function(f) {
+        let input = f.querySelector('input');
+        data[input.getAttribute('name').toLowerCase()] = input.value.trim();
+    });
+    console.log('edit data', data);
+    _remote(__tbl_url, data).then(function(data){
+        if (data.status != 201) {
+            _show_modal_edit_error(data.error, data.message);
+        } else {
+            $('.ui.modal.create').modal('hide');
+        }
+    }).catch(function(error){
+        console.error(error);
+        _show_modal_edit_error('Some Error Happen', error);
+    });
+};
+
+const _reset_edit = function() {
+    __('form .fields .field').forEach(function(f) {
+        f.querySelector('input').value = f.dataset['init'];
+    });
+};
+
+const _show_modal_edit_error = function(error, message) {
+    let msgnode = _('.ui.modal.create .ui.negative.message');
+    msgnode.querySelector('.header').innerHTML = error;
+    msgnode.querySelector('.error_details').innerHTML = message;
+    msgnode._csstext('display');
+};
+
+const _after_modal_hidden = function() {
+    //TODO
+};
+
 document.addEventListener('DOMContentLoaded', function () {
+    
+    $('.ui.modal.create').modal({
+        centered: false,
+        transition: 'horizontal flip',
+        onHidden: _after_modal_hidden
+    });
+
+    $('.ui.modal.confirm_del').modal({
+        closable: false,
+        onDeny: function(){console.log('deny');},
+        onApprove: _do_del
+    });
+
+    $('.message .close').on('click', function() {
+        $(this).closest('.message').fadeOut();
+    });
+
+    _init_edit_form();
     _init_search_form();
     _init_pagesize();
     _load_data();
+
     _('#btn_tbl_query')._on('click', _do_search);
+    _('#btn_tbl_create')._on('click', _open_create_modal);
+    _('#btn_edit_submit')._on('click', _submit_edit);
+    _('#btn_edit_reset')._on('click', _reset_edit);
 });

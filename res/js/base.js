@@ -27,3 +27,17 @@ export function _remove_sibling_class(pnode, tagname, cname) {
           item._rc(cname)
     });
 };
+
+export function _remote(url, data={}, method='POST') {
+    return fetch(url, {
+        body: JSON.stringify(data),
+        cache: 'no-cache',
+        headers: {
+            'content-type': 'application/json'
+        },
+        method: method,
+        mode: 'cors',
+        redirect: 'follow',
+        referrer: 'no-referrer'
+    }).then(resp => resp.json());
+};
