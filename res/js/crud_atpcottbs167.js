@@ -134,6 +134,12 @@ const _load_data = function() {
         _init_table_head();
         _init_table_body();
         _init_table_foot();
+        
+        __('.ui.modal.create input').forEach(function(ipt){
+            ipt.value = '';
+            _find_ancestor(ipt, null, 'field').dataset['init'] = '';
+        });
+
         _('#table_loader')._rc('active');
     });
 };
@@ -150,11 +156,12 @@ const _init_table_head = function() {
 
 const _init_table_body = function() {
     let last_td = 
-    `<td class="right aligned collapsing">
-        <button class="mini ui black compact icon button crud_edit" data-primary="@0" data-fields="@1"><i class="edit icon"></i></button>
-        <button class="mini ui orange compact icon button crud_del" data-primary="@0"><i class="trash icon"></i></button>
+    `<td class="right aligned collapsing" data-primary="@0">
+        <button class="mini ui black compact icon button crud_edit" data-index="@1"><i class="edit icon"></i></button>
+        <button class="mini ui orange compact icon button crud_del"><i class="trash icon"></i></button>
     </td>`;
     let trs = [];
+    let index = 0;
     _table_data.details.forEach(function(row){
         let tds = [];
         __tbl_display.split(';').forEach(function(item){
@@ -174,8 +181,9 @@ const _init_table_body = function() {
             }
             pks.push(`${nt[0]}=${v}`);
         });
-        tds.push(last_td.replaceAll('@1', __tbl_edit).replaceAll('@0', pks.join(' and ')));
+        tds.push(last_td.replace('@0', pks.join(' and ')).replace('@1', index));
         trs.push(`<tr>${tds.join('')}</tr>`);
+        index += 1;
     });
     _('#table_body')._h(trs.join(''));
     _bind_edit_del_handlers();
@@ -382,17 +390,40 @@ const _init_edit_form = function(init_data={}) {
 };
 
 const _open_create_modal = function() {
+    let mheader = _('#mdl_edit_header');
+    if (mheader.innerHTML.indexOf('edit')>=0) {
+        __('.ui.modal.create input').forEach(function(ipt){
+            ipt.value = '';
+            _find_ancestor(ipt, null, 'field').dataset['init'] = '';
+        });
+    }
+    _('#mdl_edit_header')._h('<i class="plus icon"></i> 新建');
     $('.ui.modal.create').modal('show');
 };
 
-const _open_edit_modal = function() {
-    // TODO pre fill
+let _where_edit;
+const _open_edit_modal = function(e) {
+    let target = _find_ancestor(e.target, 'BUTTON', null);
+    _where_edit = target.parentNode.dataset['primary'];
+    let init_data = _table_data.details[parseInt(target.dataset['index'])];
+    __tbl_edit.split(';').forEach(function(item){
+        let nt = item.split(',');
+        let n = nt[0];
+        let v = init_data[n.toLowerCase()];
+        if (v == null) {
+            v = '';
+        }
+        let ipt = _(`#frm_edit input[name="${n}"]`);
+        ipt.value = v;
+        _find_ancestor(ipt, null, 'field').dataset['init'] = v;
+    });
+    _('#mdl_edit_header')._h('<i class="edit icon"></i> 修改');
     $('.ui.modal.create').modal('show');
 };
 
 let _where_del;
 const _confirm_delete = function(e) {
-    let target = _find_ancestor(e.target, 'BUTTON', null);
+    let target = _find_ancestor(e.target, 'TD', null);
     _where_del = target.dataset['primary'];
     $('.ui.modal.confirm_del').modal('show');
 };
@@ -404,31 +435,68 @@ const _do_del = function() {
     _remote(__tbl_url, data, 'DELETE').then(function(data){
         console.log(data);
         if (data.status != 204) {
-            console.log('some error happen...');
+            _show_global_msg(data.error, data.message, true);
         } else {
             _load_data();
         }
     }).catch(function(error){
-        console.error(error);
+        _show_global_msg('Encounter Some Error', error, true);
     });
 };
 
+const _do_submit = function() {
+    if (_('#mdl_edit_header').innerHTML.indexOf('edit')>=0) {
+        _submit_edit();
+    } else {
+        _submit_create();
+    }
+};
+
 const _submit_edit = function() {
-    let data = {};
+    let sets = [];
     __('form .fields .field').forEach(function(f) {
-        let input = f.querySelector('input');
-        data[input.getAttribute('name').toLowerCase()] = input.value.trim();
+        let ipt = f.querySelector('input');
+        let v = ipt.value.trim();
+        let type = f.dataset['type'];
+        if (type.indexOf('CHAR') >=0 || type.indexOf('DATE') >= 0 || type.indexOf('TIME') >= 0) {
+            sets.push(`${ipt.name}='${v}'`);
+        } else {
+            sets.push(`${ipt.name}=${v}`);
+        }
     });
+    let data = {
+        setclause: sets.join(', '),
+        whereclause: `where ${_where_edit}`
+    };
     console.log('edit data', data);
     _remote(__tbl_url, data).then(function(data){
         if (data.status != 201) {
             _show_modal_edit_error(data.error, data.message);
         } else {
             $('.ui.modal.create').modal('hide');
+            _load_data();
         }
     }).catch(function(error){
-        console.error(error);
-        _show_modal_edit_error('Some Error Happen', error);
+        _show_modal_edit_error('Encounter Some Error', error);
+    });
+};
+
+const _submit_create = function() {
+    let data = {};
+    __('form .fields .field').forEach(function(f) {
+        let input = f.querySelector('input');
+        data[input.getAttribute('name').toLowerCase()] = input.value.trim();
+    });
+    console.log('create data', data);
+    _remote(__tbl_url, data).then(function(data){
+        if (data.status != 201) {
+            _show_modal_edit_error(data.error, data.message);
+        } else {
+            $('.ui.modal.create').modal('hide');
+            _load_data();
+        }
+    }).catch(function(error){
+        _show_modal_edit_error('Encounter Some Error', error);
     });
 };
 
@@ -445,8 +513,22 @@ const _show_modal_edit_error = function(error, message) {
     msgnode._csstext('display');
 };
 
+const _show_global_msg = function(title, content, isError) {
+    let msgnode = _('#msg_area');
+    msgnode.querySelector('.header').innerHTML = title;
+    msgnode.querySelector('.error_details').innerHTML = content;
+    if (isError) {
+        msgnode._rc('positive');
+        msgnode._ac('negative');
+    } else {
+        msgnode._rc('negative');
+        msgnode._ac('positive');
+    }
+    msgnode._csstext('display');
+};
+
 const _after_modal_hidden = function() {
-    //TODO
+    console.log('After edit modal hidden...')
 };
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -474,6 +556,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     _('#btn_tbl_query')._on('click', _do_search);
     _('#btn_tbl_create')._on('click', _open_create_modal);
-    _('#btn_edit_submit')._on('click', _submit_edit);
+    _('#btn_edit_submit')._on('click', _do_submit);
     _('#btn_edit_reset')._on('click', _reset_edit);
 });

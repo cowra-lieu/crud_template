@@ -20,6 +20,12 @@
         <button class="ui mini black button" id='btn_tbl_query'><i class="search icon"></i> 查询</button>
         <button class="ui mini blue button" id='btn_tbl_create'><i class="plus icon"></i> 新建</button>
 
+        <div class="ui mini negative message" id="msg_area" style="display: none;">
+          <i class="close icon"></i>
+          <div class="header"></div>
+          <p class="error_details"></p>
+        </div>
+
         <div class="dimmable">
           <div class="ui inverted dimmer" id="table_loader">
             <div class="ui text loader">请稍候...</div>
@@ -60,7 +66,7 @@
 
     <div class="ui longer large modal create">
       <i class="close icon"></i>
-      <div class="header"><i class="plus icon"></i> 新建</div>
+      <div class="header" id="mdl_edit_header"><i class="plus icon"></i> 新建</div>
       <div class="scrolling content">
         <div class="ui attached mini negative message" style="display: none;">
           <i class="close icon"></i>
@@ -92,9 +98,9 @@
     </div>
 
     <div class="ui mini modal confirm_del">
-      <div class="header">确认</div>
+      <div class="header">删除记录</div>
       <div class="content">
-        删除该记录?
+        确认删除该记录?
       </div>
       <div class="actions">
         <div class="ui mini approve red button"><i class="check icon"></i> 是</div>
