@@ -53,7 +53,7 @@ const __tbl_edit = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;MD5
 const __tbl_primary = 'MD5,VARCHAR2;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
 
 
-const PAGINE_BTN_NUM = 5;
+const PAGINE_BTN_NUM = 7;
 
 const _table_data = {
     details: [
@@ -218,7 +218,7 @@ const _init_pagination_menu = function() {
         <a class="icon item" id="pagine_last"><i class="angle double right icon"></i></a>`;
     let uipaignationmenu_item = `<a class="number item@" id="pagine_#">#</a>`;
     let pages = [];
-    let t = _last_pageno;
+    let t = _last_pageno();
     let page_number = 0;
     while (t && page_number< PAGINE_BTN_NUM) {
         t -= 1;
@@ -267,21 +267,20 @@ const _pagination_handler = function(e) {
         pageno = parseInt(action);
     }
 
+    let nums = target.parentNode.querySelectorAll('a.number.item');
+    let nlen = nums.length;
+    let start = 1;
+    let min = parseInt(nums[0].innerHTML);
+    let max = parseInt(nums[nlen-1].innerHTML);
+    let p;
     if (target._cc('number')) {
-        target._ac('active');
-    } else {
-        let p = _(`#pagine_${pageno}`);
-        if (p) {
-            p._ac('active');
-        } else {
-            let nums = target.parentNode.querySelectorAll('a.number.item');
-            let nlen = nums.length;
-            if (nlen > 0) {
-                let min = parseInt(nums[0].innerHTML);
-                let max = parseInt(nums[nlen-1].innerHTML);
-                let start = pageno;
-                if (pageno > max) {
-                    start = pageno - (nlen - 1);
+        if (nlen > 0) {
+            if (pageno == min || pageno == max) {
+                start = pageno - (PAGINE_BTN_NUM - 1)/2;
+                if (start < 1) {
+                    start = 1;
+                } else if (pageno == lastno) {
+                    start = lastno - (nlen - 1);
                 }
                 for (let i = 0; i<nlen; i++) {
                     nums[i].setAttribute('id', `pagine_${start}`);
@@ -290,7 +289,51 @@ const _pagination_handler = function(e) {
                 }
                 p = _(`#pagine_${pageno}`);
                 if (p) {
+                    target._rc('active');
                     p._ac('active');
+                }
+            } else {
+                target._ac('active');
+            }
+        }
+    } else {
+        if (nlen > 0) {
+            if (pageno == min || pageno == max) {
+                start = pageno - (PAGINE_BTN_NUM - 1)/2;
+                if (start < 1) {
+                    start = 1;
+                } else if (pageno == lastno) {
+                    start = lastno - (nlen - 1);
+                }
+                for (let i = 0; i<nlen; i++) {
+                    nums[i].setAttribute('id', `pagine_${start}`);
+                    nums[i].innerHTML = start;
+                    start += 1;
+                }
+                p = _(`#pagine_${pageno}`);
+                if (p) {
+                    target._rc('active');
+                    p._ac('active');
+                }
+            } else {
+                p = _(`#pagine_${pageno}`);
+                if (p) {
+                    p._ac('active');
+                } else {
+                    start = pageno;
+                    if (pageno > max) {
+                        start = pageno - (nlen - 1);
+                    }
+                    for (let i = 0; i<nlen; i++) {
+                        nums[i].setAttribute('id', `pagine_${start}`);
+                        nums[i].innerHTML = start;
+                        start += 1;
+                    }
+                    p = _(`#pagine_${pageno}`);
+                    if (p) {
+                        target._rc('active');
+                        p._ac('active');
+                    }
                 }
             }
         }
