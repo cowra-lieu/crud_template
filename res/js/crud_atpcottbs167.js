@@ -48,8 +48,8 @@ HTMLElement.prototype._csstext = function (key, value) {
 
 const __tbl_url = 'http://localhost:9082/demo1672/v1/atpcottbs167';
 const __tbl_search = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VERCHAR2';
-const __tbl_display = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;EFFECTIVE_DATE,VARCHAR2;EXPIRY_DATE,VARCHAR2;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
-const __tbl_edit = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;MD5,VARCHAR2;EFFECTIVE_DATE,VARCHAR2;EXPIRY_DATE,VARCHAR2;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
+const __tbl_display = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;EFFECTIVE_DATE,DATE;EXPIRY_DATE,DATE;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
+const __tbl_edit = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;MD5,VARCHAR2;EFFECTIVE_DATE,DATE;EXPIRY_DATE,DATE;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
 const __tbl_primary = 'MD5,VARCHAR2;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
 
 
@@ -75,17 +75,24 @@ const _init_search_form = function() {
 let _current_page = 1;
 let _current_pagesize = 10;
 
+const _get_sql_value = function(v, t) {
+    if (t.indexOf('NUMBER') >= 0) {
+        return v;
+    } else if (t.indexOf('DATE') >= 0) {
+        return `to_date('${v}','yyyy-MM-dd')`;
+    } else {
+        return `'${v.replaceAll("'", "''")}'`;
+    }
+}
+
 const _build_where = function() {
     let cs = [];
     __tbl_search.split(';').forEach(function(item) {
         let nt = item.split(',');
         let value = _(`#tbl_search_${nt[0]}`).value.trim();
         if (value.length > 0) {
-            if (nt[1].indexOf('CHAR') >= 0) {
-                cs.push(`${nt[0]}='${value}'`);
-            } else {
-                cs.push(`${nt[0]}=${value}`);
-            }
+            value = _get_sql_value(value, nt[1]);
+            cs.push(`${nt[0]}=${value}`);
         }
     });
     return encodeURIComponent(cs.join(' and '));
@@ -176,9 +183,7 @@ const _init_table_body = function() {
         __tbl_primary.split(';').forEach(function(item){
             let nt = item.split(',');
             let v = row[nt[0].toLowerCase()];
-            if (nt[1].indexOf('CHAR') >= 0 || nt[1].indexOf('DATE') >= 0 || nt[1].indexOf('TIME') >= 0) {
-                v = `'${v}'`;
-            }
+            v = _get_sql_value(v, nt[1]);
             pks.push(`${nt[0]}=${v}`);
         });
         tds.push(last_td.replace('@0', pks.join(' and ')).replace('@1', index));
@@ -457,20 +462,19 @@ const _submit_edit = function() {
     __('form .fields .field').forEach(function(f) {
         let ipt = f.querySelector('input');
         let v = ipt.value.trim();
-        let type = f.dataset['type'];
-        if (type.indexOf('CHAR') >=0 || type.indexOf('DATE') >= 0 || type.indexOf('TIME') >= 0) {
-            sets.push(`${ipt.name}='${v}'`);
-        } else {
+        if (v != f.dataset['init']) {
+            v = _get_sql_value(v, f.dataset['type']);
             sets.push(`${ipt.name}=${v}`);
         }
     });
     let data = {
         setclause: sets.join(', '),
-        whereclause: `where ${_where_edit}`
+        whereclause: _where_edit
     };
     console.log('edit data', data);
-    _remote(__tbl_url, data).then(function(data){
-        if (data.status != 201) {
+    _remote(__tbl_url, data, 'PUT').then(function(data){
+        console.log(data);
+        if (data.status != 200) {
             _show_modal_edit_error(data.error, data.message);
         } else {
             $('.ui.modal.create').modal('hide');
