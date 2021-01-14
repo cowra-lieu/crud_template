@@ -46,11 +46,11 @@ HTMLElement.prototype._csstext = function (key, value) {
     }
 };
 
-const __tbl_url = 'http://localhost:9082/demo1672/v1/atpcottbs167';
-const __tbl_search = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VERCHAR2';
-const __tbl_display = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;EFFECTIVE_DATE,DATE;EXPIRY_DATE,DATE;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
-const __tbl_edit = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2;RULE,VARCHAR2;MD5,VARCHAR2;EFFECTIVE_DATE,DATE;EXPIRY_DATE,DATE;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
-const __tbl_primary = 'MD5,VARCHAR2;HEADER_ID,VARCHAR2;LINENO,VARCHAR2';
+const __tbl_url = 'http://localhost:9085/demo005/v1/atpcottbs167';
+const __tbl_search = 'TBL_NO,VARCHAR2;APPL,VARCHAR2;EQP,VARCHAR2';
+const __tbl_display = 'TBL_NO,VARCHAR2;TICKET_CODE,VARCHAR2;APPL,VARCHAR2;FBTD,VARCHAR2;EQP,VARCHAR2;CABIN,VARCHAR2;RBD,VARCHAR2;FARE_TYPE,VARCHAR2;TARIFF,VARCHAR2;FARE_OWNING_CARRIER,VARCHAR2;RULE,VARCHAR2;REST,VARCHAR2;MD5,VARCHAR2;HEADER_ID,VARCHAR2;EFFECTIVE_DATE,DATE;LINENO,VARCHAR2;EXPIRY_DATE,DATE';
+const __tbl_edit = 'REC_TYPE,VARCHAR2;ACTION,VARCHAR2;TBL_ID,VARCHAR2;TBL_NO,VARCHAR2;TICKET_CODE,VARCHAR2;APPL,VARCHAR2;FBTD,VARCHAR2;EQP,VARCHAR2;CABIN,VARCHAR2;RBD,VARCHAR2;FARE_TYPE,VARCHAR2;TARIFF,VARCHAR2;FARE_OWNING_CARRIER,VARCHAR2;RULE,VARCHAR2;REST,VARCHAR2;MD5,VARCHAR2;HEADER_ID,VARCHAR2;EFFECTIVE_DATE,DATE;LINENO,VARCHAR2;EXPIRY_DATE,DATE';
+const __tbl_primary = 'HEADER_ID,VARCHAR2;LINENO,VARCHAR2;MD5,VARCHAR2';
 
 
 const PAGINE_BTN_NUM = 7;
@@ -123,10 +123,10 @@ const _build_fields = function() {
 
 const _load_data = function() {
     _('#table_loader')._ac('active');
+    _('#crud_table_area')._csstext('display');
     let where = _build_where();
     let fields = _build_fields();
     let url = `${__tbl_url}/${_current_pagesize}/${_current_page}?where=${where}&fields=${fields}`;
-    console.log(url);
     fetch(url).then(function(resp){
         return resp.json();
     }).then(function(jsondata){
@@ -148,6 +148,10 @@ const _load_data = function() {
         });
 
         _('#table_loader')._rc('active');
+    }).catch(function(error){
+        _show_global_msg('Encounter Some Error', error, true);
+        _('#table_loader')._rc('active');
+        _('#crud_table_area')._csstext('display', 'none');
     });
 };
 
@@ -215,7 +219,7 @@ const _last_pageno = function() {
 const _init_table_foot = function() {
     _('#table_total_records')._h(_table_data.total);
     _('#table_total_pages')._h(`${_table_data.current}/${_last_pageno()}`);
-    _('#table_foot_lastcolumn')._attr('colspan', __tbl_display.split(';').length+1);
+    // _('#table_foot_lastcolumn')._attr('colspan', __tbl_display.split(';').length+1);
     if (_('.ui.pagination.menu').innerHTML == '' || 1 >= _current_page) {
         _init_pagination_menu();
     }
@@ -438,7 +442,6 @@ const _do_del = function() {
         whereclause: _where_del
     };
     _remote(__tbl_url, data, 'DELETE').then(function(data){
-        console.log(data);
         if (data.status != 204) {
             _show_global_msg(data.error, data.message, true);
         } else {
@@ -471,9 +474,7 @@ const _submit_edit = function() {
         setclause: sets.join(', '),
         whereclause: _where_edit
     };
-    console.log('edit data', data);
     _remote(__tbl_url, data, 'PUT').then(function(data){
-        console.log(data);
         if (data.status != 200) {
             _show_modal_edit_error(data.error, data.message);
         } else {
@@ -491,7 +492,6 @@ const _submit_create = function() {
         let input = f.querySelector('input');
         data[input.getAttribute('name').toLowerCase()] = input.value.trim();
     });
-    console.log('create data', data);
     _remote(__tbl_url, data).then(function(data){
         if (data.status != 201) {
             _show_modal_edit_error(data.error, data.message);
@@ -532,7 +532,7 @@ const _show_global_msg = function(title, content, isError) {
 };
 
 const _after_modal_hidden = function() {
-    console.log('After edit modal hidden...')
+    // console.log('After edit modal hidden...')
 };
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -545,7 +545,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('.ui.modal.confirm_del').modal({
         closable: false,
-        onDeny: function(){console.log('deny');},
+        onDeny: function(){
+            // console.log('deny');
+        },
         onApprove: _do_del
     });
 
